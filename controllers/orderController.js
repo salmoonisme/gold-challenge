@@ -1,17 +1,17 @@
-const { Users, Orders, Products } = require('../models');
-const Error = require('../helpers/error');
-const decode = require('jwt-decode');
-const jwt = require('jsonwebtoken');
-const verify = require('./verify');
-const { default: jwtDecode } = require('jwt-decode');
-const { search } = require('../routes/orderRoute');
+const { Users, Orders, Products } = require("../models");
+const Error = require("../helpers/error");
+const decode = require("jwt-decode");
+const jwt = require("jsonwebtoken");
+const verify = require("./verify");
+const { default: jwtDecode } = require("jwt-decode");
+const { search } = require("../routes/orderRoute");
 
 class OrderController {
   async get(req, res, next) {
     try {
       const dataOrder = await Orders.findAll({});
       if (dataOrder.length < 1) {
-        throw new Error(400, 'There is no order yet');
+        throw new Error(400, "There is no order yet");
       }
       res.status(200).json(dataOrder);
     } catch (error) {
@@ -26,17 +26,17 @@ class OrderController {
         req.body;
       const searchUser = await Users.findOne({
         where: { id: userID },
-        attributes: ['street', 'city', 'id'],
+        attributes: ["street", "city", "id"],
       });
       if (!searchUser) {
         throw new Error(400, `User with ID ${userID} is not registered`);
       }
       const searchProduct = await Products.findOne({
         where: { id: productID },
-        attributes: ['productName', 'id'],
+        attributes: ["productName", "id"],
       });
       if (!searchProduct) {
-        throw new Error(400, 'Product is not available');
+        throw new Error(400, "Product is not available");
       }
       const createOrder = await Orders.create({
         productID: searchProduct.id,
@@ -44,10 +44,10 @@ class OrderController {
         userID: searchUser.id,
         toStreet: searchUser.street,
         toCity: searchUser.city,
-        status: 'Pending',
+        status: "Pending",
       });
       res.status(200).json({
-        message: 'Successfully create order',
+        message: "Successfully create order",
         data: createOrder,
       });
     } catch (error) {
@@ -67,7 +67,7 @@ class OrderController {
       }
       const updateOrder = await Orders.update(
         {
-          status: 'Paid',
+          status: "Paid",
         },
         {
           where: {
@@ -76,7 +76,7 @@ class OrderController {
         }
       );
       res.status(302).json({
-        message: 'Successfully paid order',
+        message: "Successfully paid order",
       });
     } catch (error) {
       next(error);
@@ -103,7 +103,7 @@ class OrderController {
         { where: { id: id } }
       );
       res.status(200).json({
-        message: 'Berhasil update order',
+        message: "Berhasil update order",
       });
     } catch (error) {
       next(error);
@@ -124,7 +124,7 @@ class OrderController {
         where: { id: id },
       });
       res.status(200).json({
-        message: 'Successfully delete order',
+        message: "Successfully delete order",
       });
     } catch (error) {
       next(error);
@@ -133,3 +133,4 @@ class OrderController {
 }
 
 module.exports = { OrderController };
+// pull test
