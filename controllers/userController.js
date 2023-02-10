@@ -1,8 +1,8 @@
-const { Users } = require("../models");
-const Error = require("../helpers/error");
-const bcrypt = require("bcryptjs");
-require("dotenv").config();
-const jwt = require("jsonwebtoken");
+const { Users } = require('../models');
+const Error = require('../helpers/error');
+const bcrypt = require('bcryptjs');
+require('dotenv').config();
+const jwt = require('jsonwebtoken');
 const { default: jwtDecode } = require('jwt-decode')
 
 class UserController {
@@ -10,7 +10,7 @@ class UserController {
     try {
       const data = await Users.findAll({});
       if (data.length < 1) {
-        throw new Error(400, "There is no user yet")
+        throw new Error(400, 'There is no user yet')
     }
       res.status(200).json(data);
     } catch (error) {
@@ -46,7 +46,7 @@ class UserController {
       }
       const passwordLogin = await bcrypt.compare(password, checkEmail.password);
       if (!passwordLogin) {
-        throw new Error(400, "Password is incorrect")
+        throw new Error(400, 'Password is incorrect')
       }
       const token = jwt.sign({ id: checkEmail.id }, process.env.JWT_SECRET, {expiresIn: process.env.JWT_EXPIRES_IN})
       res.status(200).json(token);
@@ -72,7 +72,7 @@ class UserController {
         city: city
       }, { where : {id: id}} )
       res.status(200).json({
-        message: "Successfully update user"
+        message: 'Successfully update user'
     });
     }
     catch (error) {
@@ -84,7 +84,7 @@ class UserController {
       const { id } = req.params;
       const deleteUser = await Users.destroy({ where: { id: id } });
       res.status(200).json({
-        message: "Successfully delete user"
+        message: 'Successfully delete user'
       });
     } catch (error) {
       next(error);

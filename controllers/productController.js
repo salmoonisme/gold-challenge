@@ -1,8 +1,8 @@
-const { Products } = require("../models");
-const Error = require("../helpers/error");
-const decode = require("jwt-decode");
-const jwt = require("jsonwebtoken");
-const verify = require("./verify");
+const { Products } = require('../models');
+const Error = require('../helpers/error');
+const decode = require('jwt-decode');
+const jwt = require('jsonwebtoken');
+const verify = require('./verify');
 const { default: jwtDecode } = require('jwt-decode');
 
 class ProductController{
@@ -10,7 +10,7 @@ class ProductController{
     try {
         const dataProduct = await Products.findAll({});
         if (dataProduct.length < 1) {
-            throw new Error(400, "There is no product yet")
+            throw new Error(400, 'There is no product yet')
         }
         res.status(200).json(dataProduct);
     } 
@@ -44,7 +44,7 @@ class ProductController{
             type: type
           }, { where : {id: id}} )
           res.status(200).json({
-            message: "Successfully update product"
+            message: 'Successfully update product'
         });
         }
         catch (error) {
@@ -53,7 +53,7 @@ class ProductController{
       }
     async deleteByID (req, res, next) {
         try {
-            // const token = req.header("auth-token");
+            // const token = req.header('auth-token');
             // const decode = jwtDecode(token);
             const { id } = req.params
             const dataProduct = await Products.findAll({
@@ -66,7 +66,7 @@ class ProductController{
                 where: { id: id }
             })
             res.status(200).json({
-                message: "Successfully delete product"
+                message: 'Successfully delete product'
             });
         } 
         catch (error) {

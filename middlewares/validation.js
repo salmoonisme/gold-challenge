@@ -1,4 +1,4 @@
-const Error = require("../helpers/error");
+const Error = require('../helpers/error');
 
 const validation = (schema) => async (req, res, next) => {
     try {
