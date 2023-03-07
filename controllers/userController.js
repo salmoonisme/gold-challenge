@@ -1,18 +1,18 @@
 const { Users } = require('../models');
 const Error = require('../helpers/error');
+const Response = require('../helpers/response');
+const { getToken } = require('../helpers/jwt')
 const bcrypt = require('bcryptjs');
-require('dotenv').config();
-const jwt = require('jsonwebtoken');
-const { default: jwtDecode } = require('jwt-decode')
+// const authentication = require('../middlewares/authentication');
 
 class UserController {
   async get(req, res, next) {
     try {
       const data = await Users.findAll({});
       if (data.length < 1) {
-        throw new Error(400, 'There is no user yet')
-    }
-      res.status(200).json(data);
+        throw new Error(400, 'There is no user yet');
+      }
+        return new Response(res, 200, data);
     } catch (error) {
       next(error);
     }
@@ -32,7 +32,7 @@ class UserController {
         street,
         city,
       });
-      res.status(200).json(createUser);
+      return new Response(res, 200, createUser);
     } catch (error) {
       next(error);
     }
@@ -46,46 +46,49 @@ class UserController {
       }
       const passwordLogin = await bcrypt.compare(password, checkEmail.password);
       if (!passwordLogin) {
-        throw new Error(400, 'Password is incorrect')
+        throw new Error(400, 'Password is incorrect');
       }
-      const token = jwt.sign({ id: checkEmail.id }, process.env.JWT_SECRET, {expiresIn: process.env.JWT_EXPIRES_IN})
-      res.status(200).json(token);
-
+      const payload = {
+        id: checkEmail.id
+      }
+      const token = getToken(payload);
+      return new Response(res, 200, token);
     } catch (error) {
       next(error);
     }
   }
-  async update (req, res, next) {
+  async update(req, res, next) {
     try {
-      const { name, email, street, city } = req.body
-      const { id } = req.params
+      const { name, email, street, city } = req.body;
+      const { id } = req.user;
       const searchID = await Users.findOne({
-        where : {id : id}
-      })
+        where: { id: id },
+      });
       if (!searchID) {
-        throw new Error (400, `There is no user with ID ${id}`)
+        throw new Error(400, `There is no user with ID ${id}`);
       }
-      const updateUser = await Users.update({
-        name: name,
-        email: email,
-        street: street,
-        city: city
-      }, { where : {id: id}} )
-      res.status(200).json({
-        message: 'Successfully update user'
-    });
-    }
-    catch (error) {
-      next(error)
+      const updateUser = await Users.update(
+        {
+          name: name,
+          email: email,
+          street: street,
+          city: city,
+        },
+        { where: { id: id } }
+      );
+      const newUser = await Users.findOne({
+        where: { id: id },
+      });
+      return new Response(res, 200, newUser);
+    } catch (error) {
+      next(error);
     }
   }
   async deleteByID(req, res, next) {
     try {
-      const { id } = req.params;
+      const { id } = req.user;
       const deleteUser = await Users.destroy({ where: { id: id } });
-      res.status(200).json({
-        message: 'Successfully delete user'
-      });
+      return new Response(res, 200, 'User has been deleted');
     } catch (error) {
       next(error);
     }
@@ -93,4 +96,3 @@ class UserController {
 }
 
 module.exports = { UserController };
-  

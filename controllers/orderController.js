@@ -1,19 +1,16 @@
-const { Users, Orders, Products } = require("../models");
-const Error = require("../helpers/error");
-const decode = require("jwt-decode");
-const jwt = require("jsonwebtoken");
-const verify = require("./verify");
-const { default: jwtDecode } = require("jwt-decode");
-const { search } = require("../routes/orderRoute");
+const { Users, Orders, Products } = require('../models');
+const Error = require('../helpers/error');
+const Response = require('../helpers/response');
+const authentication = require('../middlewares/authentication')
 
 class OrderController {
   async get(req, res, next) {
     try {
       const dataOrder = await Orders.findAll({});
       if (dataOrder.length < 1) {
-        throw new Error(400, "There is no order yet");
+        throw new Error(400, 'There is no order yet');
       }
-      res.status(200).json(dataOrder);
+      return new Response(res, 200, dataOrder);
     } catch (error) {
       next(error);
     }
@@ -25,31 +22,28 @@ class OrderController {
       const { productID, productName, userID, toStreet, toCity, status } =
         req.body;
       const searchUser = await Users.findOne({
-        where: { id: userID },
-        attributes: ["street", "city", "id"],
+        where: { id: req.user.id },
+        attributes: ['street', 'city', 'id'],
       });
       if (!searchUser) {
-        throw new Error(400, `User with ID ${userID} is not registered`);
+        throw new Error(400, `User with ID ${req.user.id} is not registered`);
       }
       const searchProduct = await Products.findOne({
         where: { id: productID },
-        attributes: ["productName", "id"],
+        attributes: ['productName', 'id'],
       });
       if (!searchProduct) {
-        throw new Error(400, "Product is not available");
+        throw new Error(400, 'Product is not available');
       }
       const createOrder = await Orders.create({
         productID: searchProduct.id,
         productName: searchProduct.productName,
-        userID: searchUser.id,
+        userID: req.user.id,
         toStreet: searchUser.street,
         toCity: searchUser.city,
-        status: "Pending",
+        status: 'Pending',
       });
-      res.status(200).json({
-        message: "Successfully create order",
-        data: createOrder,
-      });
+      return new Response(res, 200, createOrder);
     } catch (error) {
       next(error);
     }
@@ -58,16 +52,16 @@ class OrderController {
     try {
       // const token = req.header('auth-token');
       // const decode = jwtDecode(token);
-      const { id } = req.params;
+      const { id } = req.user;
       const searchOrder = await Orders.findOne({
         where: { id: id },
       });
       if (!searchOrder) {
         throw new Error(400, `There is no order with ID ${id}`);
       }
-      const updateOrder = await Orders.update(
+      const payOrder = await Orders.update(
         {
-          status: "Paid",
+          status: 'Paid',
         },
         {
           where: {
@@ -75,9 +69,10 @@ class OrderController {
           },
         }
       );
-      res.status(302).json({
-        message: "Successfully paid order",
+      const paidOrder = await Orders.findOne({
+        where: { id: id },
       });
+      return new Response(res, 200, paidOrder);
     } catch (error) {
       next(error);
     }
@@ -85,14 +80,14 @@ class OrderController {
   async update(req, res, next) {
     try {
       const { productID, productName, userID, toStreet, toCity } = req.body;
-      const { id } = req.params;
+      const { id } = req.user;
       const searchID = await Orders.findOne({
         where: { id: id },
       });
       if (!searchID) {
         throw new Error(400, `There is no order with ID ${id}`);
       }
-      const updateUser = await Orders.update(
+      const updateOrder = await Orders.update(
         {
           productID: productID,
           productName: productName,
@@ -102,9 +97,10 @@ class OrderController {
         },
         { where: { id: id } }
       );
-      res.status(200).json({
-        message: "Berhasil update order",
+      const updatedOrder = await Orders.findOne({
+        where: { id: id },
       });
+      return new Response(res, 200, updatedOrder);
     } catch (error) {
       next(error);
     }
@@ -113,7 +109,7 @@ class OrderController {
     try {
       // const token = req.header('auth-token');
       // const decode = decode(token);
-      const { id } = req.params;
+      const { id } = req.user;
       const dataOrder = await Orders.findOne({
         where: { id: id },
       });
@@ -123,9 +119,7 @@ class OrderController {
       const deleteOrder = await Orders.destroy({
         where: { id: id },
       });
-      res.status(200).json({
-        message: "Successfully delete order",
-      });
+      return new Response(res, 200, 'Order has been deleted');
     } catch (error) {
       next(error);
     }
