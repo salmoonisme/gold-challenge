@@ -6,7 +6,6 @@ const routes = require('./routes');
 require('dotenv').config();
 const port = process.env.PORT || 3000;
 
-
 // middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

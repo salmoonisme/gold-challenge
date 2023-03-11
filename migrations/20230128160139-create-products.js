@@ -10,6 +10,16 @@ module.exports = {
         type: Sequelize.INTEGER,
         unique: true
       },
+      userID: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'Users',
+          key: 'id'
+        },
+        onUpdate: 'cascade',
+        onDelete: 'cascade',
+      },
       productName: {
         type: Sequelize.STRING,
         allowNull: false

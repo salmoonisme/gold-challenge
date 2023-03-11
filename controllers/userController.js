@@ -3,6 +3,7 @@ const Error = require('../helpers/error');
 const Response = require('../helpers/response');
 const { getToken } = require('../helpers/jwt')
 const bcrypt = require('bcryptjs');
+const { uploadCloudinary } = require('../middlewares/media');
 // const authentication = require('../middlewares/authentication');
 
 class UserController {
@@ -19,7 +20,7 @@ class UserController {
   }
   async register(req, res, next) {
     try {
-      const { name, email, password, street, city } = req.body;
+      const { name, email, password, street, city, role } = req.body;
       const checkEmail = await Users.findOne({ where: { email } });
       if (checkEmail) {
         throw new Error(400, `Email ${email} is already registered`);
@@ -31,8 +32,34 @@ class UserController {
         password: hashPassword,
         street,
         city,
+        role
       });
       return new Response(res, 200, createUser);
+    } catch (error) {
+      next(error);
+    }
+  }
+  
+  async registerAdmin(req, res, next) {
+    try {
+      const { name, email, password, street, city, role } = req.body;
+      const checkEmail = await Users.findOne({ where: { email } });
+      if (checkEmail) {
+        throw new Error(400, `Email ${email} is already registered`);
+      }
+      const hashPassword = await bcrypt.hash(password, 10);
+      const createUser = await Users.create({
+        name,
+        email,
+        password: hashPassword,
+        street,
+        city,
+        role: 'superadmin'
+      });
+      return new Response(res, 200, createUser);
+
+
+
     } catch (error) {
       next(error);
     }
@@ -49,7 +76,8 @@ class UserController {
         throw new Error(400, 'Password is incorrect');
       }
       const payload = {
-        id: checkEmail.id
+        id: checkEmail.id,
+        role: checkEmail.role
       }
       const token = getToken(payload);
       return new Response(res, 200, token);
@@ -91,6 +119,28 @@ class UserController {
       return new Response(res, 200, 'User has been deleted');
     } catch (error) {
       next(error);
+    }
+  }
+  async updateAvatar(req, res, next) {
+    const id = req.params.id
+    try {
+      const url = await uploadCloudinary(req.file.path)
+      await Users.update({
+        avatar: url
+    }, {
+        where: {
+            id
+        }
+    })
+
+    const getOne = await Users.findOne({
+        where: {
+            id
+        }
+    });
+    return new Response(res, 200, 'Avatar has been updated');
+    } catch (error) {
+      next(error)
     }
   }
 }
