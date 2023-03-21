@@ -10,6 +10,16 @@ module.exports = {
         type: Sequelize.INTEGER,
         unique: true
       },
+      userID: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'Users',
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
+      },
       productName: {
         type: Sequelize.STRING,
         allowNull: false
@@ -25,12 +35,10 @@ module.exports = {
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Date.now()
       },
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Date.now()
       },
       deletedAt: {
         type: Sequelize.DATE

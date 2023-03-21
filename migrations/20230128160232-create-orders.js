@@ -10,35 +10,31 @@ module.exports = {
         type: Sequelize.INTEGER,
         unique: true
       },
+      userID: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'Users',
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
+      },
       productID: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: "Products",
-          key: "id"
+          model: 'Products',
+          key: 'id'
         },
-        onUpdate: "cascade",
-        onDelete: "cascade",
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
       },
       productName: {
         type: Sequelize.STRING,
         allowNull: false
       },
-      userID: {
-        allowNull: false,
-        type: Sequelize.INTEGER,
-        references: {
-          model: "Users",
-          key: "id"
-        },
-        onUpdate: "cascade",
-        onDelete: "cascade",
-      },
       toStreet: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      status: {
         type: Sequelize.STRING,
         allowNull: false
       },
@@ -46,15 +42,17 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
+      status: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Date.now()
       },
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Date.now()
       },
       deletedAt: {
         type: Sequelize.DATE

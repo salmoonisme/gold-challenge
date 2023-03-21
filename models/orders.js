@@ -23,6 +23,10 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       unique: true
     },
+    userID: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
     productID: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -30,10 +34,6 @@ module.exports = (sequelize, DataTypes) => {
     productName: {
       type: DataTypes.STRING,
       allowNull: false
-    },
-    userID: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
     },
     toStreet: {
       type: DataTypes.STRING,

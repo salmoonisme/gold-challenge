@@ -1,7 +1,7 @@
 const { Users, Orders, Products } = require('../models');
 const Error = require('../helpers/error');
 const Response = require('../helpers/response');
-const authentication = require('../middlewares/authentication')
+const authentication = require('../middlewares/authentication');
 
 class OrderController {
   async get(req, res, next) {
@@ -17,13 +17,9 @@ class OrderController {
   }
   async create(req, res, next) {
     try {
-      // const token = req.header('auth-token');
-      // const decode = jwtDecode(token);
-      const { productID, productName, userID, toStreet, toCity, status } =
-        req.body;
+      const { productID, productName, toStreet, toCity, status } = req.body;
       const searchUser = await Users.findOne({
         where: { id: req.user.id },
-        attributes: ['street', 'city', 'id'],
       });
       if (!searchUser) {
         throw new Error(400, `User with ID ${req.user.id} is not registered`);
@@ -50,8 +46,6 @@ class OrderController {
   }
   async payOrder(req, res, next) {
     try {
-      // const token = req.header('auth-token');
-      // const decode = jwtDecode(token);
       const { id } = req.user;
       const searchOrder = await Orders.findOne({
         where: { id: id },
@@ -79,19 +73,24 @@ class OrderController {
   }
   async update(req, res, next) {
     try {
-      const { productID, productName, userID, toStreet, toCity } = req.body;
+      const { productID, productName, toStreet, toCity } = req.body;
       const { id } = req.user;
       const searchID = await Orders.findOne({
         where: { id: id },
       });
+      const searchProduct = await Products.findOne({
+        where: { id: productID },
+      });
+      if (!searchProduct) {
+        throw new Error(400, 'Product is not available');
+      }
       if (!searchID) {
         throw new Error(400, `There is no order with ID ${id}`);
       }
       const updateOrder = await Orders.update(
         {
           productID: productID,
-          productName: productName,
-          userID: userID,
+          productName: searchProduct.productName,
           toStreet: toStreet,
           toCity: toCity,
         },
@@ -107,14 +106,15 @@ class OrderController {
   }
   async deleteByID(req, res, next) {
     try {
-      // const token = req.header('auth-token');
-      // const decode = decode(token);
       const { id } = req.user;
       const dataOrder = await Orders.findOne({
         where: { id: id },
       });
       if (!dataOrder) {
         throw new Error(400, `There is no order with ID ${id}`);
+      }
+      if (dataOrder.userID !== id) {
+        throw new Error(400, `Unauthorized to make changes`);
       }
       const deleteOrder = await Orders.destroy({
         where: { id: id },

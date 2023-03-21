@@ -9,17 +9,23 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      Products.belongsTo(models.Users, { foreignKey: 'userID' });
       Products.hasMany(models.Orders, { foreignKey: 'productID' });
     }
   }
-  Products.init({
-    id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
-      allowNull: false,
-      primaryKey: true,
-      unique: true
-    },
+  Products.init(
+    {
+      id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        allowNull: false,
+        primaryKey: true,
+        unique: true,
+      },
+      userID: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
       productName: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -31,13 +37,13 @@ module.exports = (sequelize, DataTypes) => {
       type: {
         type: DataTypes.STRING,
         allowNull: false,
-      }
+      },
     },
     {
       sequelize,
       modelName: 'Products',
       timestamps: true,
-      freezeTableName: true
+      freezeTableName: true,
     }
   );
   return Products;

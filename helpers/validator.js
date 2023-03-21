@@ -17,7 +17,7 @@ const registerValidator = Joi.object({
     password: Joi.string().min(5).required(),
     street: Joi.string().required(),
     city: Joi.string().required(),
-
+    role: Joi.string()
 })
 
 
