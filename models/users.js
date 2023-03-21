@@ -10,6 +10,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       Users.hasMany(models.Orders, { foreignKey: 'userID' });
+      Users.hasMany(models.Products, { foreignKey: 'userID' });
     }
   }
   Users.init({
@@ -38,6 +39,14 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
     },
     city: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    avatar: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    role: {
       type: DataTypes.STRING,
       allowNull: false,
     }

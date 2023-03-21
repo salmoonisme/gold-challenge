@@ -12,6 +12,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.set('view engine', 'ejs');
 app.use('/api', routes);
+app.use('/uploads', express.static('uploads')); //serve avatar path from Users database
 
 app.use((err, req, res, next) => {
   const status = err.status || 500;
@@ -22,7 +23,7 @@ app.use((err, req, res, next) => {
   })
 })
 
-// routes //
+// routes
 app.listen(port, () => {
   console.log(`Port running on localhost:${port}`);
 });

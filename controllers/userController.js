@@ -3,7 +3,7 @@ const Error = require('../helpers/error');
 const Response = require('../helpers/response');
 const { getToken } = require('../helpers/jwt')
 const bcrypt = require('bcryptjs');
-// const authentication = require('../middlewares/authentication');
+require('dotenv').config();
 
 class UserController {
   async get(req, res, next) {
@@ -19,7 +19,7 @@ class UserController {
   }
   async register(req, res, next) {
     try {
-      const { name, email, password, street, city } = req.body;
+      const { name, email, password, street, city, role } = req.body;
       const checkEmail = await Users.findOne({ where: { email } });
       if (checkEmail) {
         throw new Error(400, `Email ${email} is already registered`);
@@ -31,6 +31,7 @@ class UserController {
         password: hashPassword,
         street,
         city,
+        role
       });
       return new Response(res, 200, createUser);
     } catch (error) {
@@ -49,7 +50,8 @@ class UserController {
         throw new Error(400, 'Password is incorrect');
       }
       const payload = {
-        id: checkEmail.id
+        id: checkEmail.id,
+        role: checkEmail.role
       }
       const token = getToken(payload);
       return new Response(res, 200, token);
@@ -67,6 +69,9 @@ class UserController {
       if (!searchID) {
         throw new Error(400, `There is no user with ID ${id}`);
       }
+      if (searchID.id !== req.user.id) {
+        throw new Error(401, 'Unauthorized to make changes')
+      };
       const updateUser = await Users.update(
         {
           name: name,
@@ -84,9 +89,35 @@ class UserController {
       next(error);
     }
   }
+  async updateAvatar(req, res, next) {
+    try {
+      const searchUser = await Users.findOne({
+        where: { id: req.user.id }
+      });
+      if (searchUser.id !== req.user.id) {
+        throw new Error(401, 'Unauthorized to make changes')
+      };
+      const updateAva = await Users.update({
+        avatar: `localhost:${process.env.PORT}/${req.file.path}`},
+        { where: { id: req.user.id }}
+      )
+      return new Response(res, 200, 'Succes update avatar')
+    } catch (error) {
+      next(error)
+    }
+  }
   async deleteByID(req, res, next) {
     try {
       const { id } = req.user;
+      const dataUser = await Users.findOne({
+        where: { id: id },
+      });
+      if (!dataUser) {
+        throw new Error(400, `There is no user with ID ${id}`);
+      }
+      if (dataUser.id !== req.user.id) {
+        throw new Error(401, 'Unauthorized to make changes')
+      };
       const deleteUser = await Users.destroy({ where: { id: id } });
       return new Response(res, 200, 'User has been deleted');
     } catch (error) {
