@@ -16,12 +16,13 @@ class ProductController {
   }
   async create(req, res, next) {
     try {
-      const { productName, quantity, type } = req.body;
+      const { productName, quantity, price } = req.body;
       const createProduct = await Products.create({
         userID: req.user.id,
         productName,
         quantity,
-        type,
+        price,
+        avatar: `localhost:${process.env.PORT}/${req.file.path}`
       });
       return new Response(res, 200, createProduct);
     } catch (error) {
@@ -30,7 +31,7 @@ class ProductController {
   }
   async update(req, res, next) {
     try {
-      const { productName, quantity, type } = req.body;
+      const { productName, quantity, price } = req.body;
       const { id } = req.params;
       const searchID = await Products.findOne({
         where: { id: id },
@@ -45,7 +46,7 @@ class ProductController {
         {
           productName: productName,
           quantity: quantity,
-          type: type,
+          type: price,
         },
         { where: { id: id } }
       );

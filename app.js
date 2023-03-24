@@ -4,8 +4,9 @@ const app = express();
 const path = require('path');
 const routes = require('./routes');
 require('dotenv').config();
+const server = require('http').createServer(app);
+const io = require('socket.io')(server);
 const port = process.env.PORT || 3000;
-
 
 // middleware
 app.use(express.json());
@@ -23,8 +24,8 @@ app.use((err, req, res, next) => {
   })
 })
 
-// routes
-app.listen(port, () => {
+// server
+server.listen(port, () => {
   console.log(`Port running on localhost:${port}`);
 });
 
