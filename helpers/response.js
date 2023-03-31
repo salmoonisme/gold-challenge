@@ -1,10 +1,18 @@
 class Response {
-    constructor(res, status, data) {
-        return res.status(status).json({
-          status: 'Success',
-          data: data
-        })
-    }
+  constructor(res, status, data) {
+    return res.status(status).json({
+      status: "Success",
+      data: data,
+    });
+  }
 }
 
-module.exports = Response 
+class ErrorResponse {
+  constructor(status, error) {
+    this.status = status;
+    this.error = error;
+    this.data = {}
+  }
+}
+
+module.exports = { Response, ErrorResponse };

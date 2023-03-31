@@ -1,0 +1,44 @@
+version: "3.8"
+
+services:
+  e-commerce:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    ports:
+      - 3030:3030
+    depends_on:
+      - database_initial
+      - database_migration
+    env_file:
+      - .env
+    command: sh -c 'npm run dev'
+    volumes:
+      - type: volume
+        source: e-commerce_volume
+        target: /app/node_modules
+      - type: bind
+        source: .
+        target: /app
+
+  database_migration:
+    build: 
+      dockerfile: Dockerfile
+      context: .
+    depends_on:
+      - database_initial
+    env_file:
+      - .env
+    command: sh -c "npm run db:migrate"
+    restart: on-failure
+
+  database_initial:
+    image: postgres:14
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=project
+
+volumes: 
+  e-commerce_volume:
