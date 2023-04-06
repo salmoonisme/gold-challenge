@@ -1,6 +1,5 @@
 const { Users, Orders, Products } = require('../models');
-const Error = require('../helpers/error');
-const Response = require('../helpers/response');
+const { Response, Error } = require('../helpers/response');
 const authentication = require('../middlewares/authentication');
 
 class OrderController {
@@ -46,12 +45,15 @@ class OrderController {
   }
   async payOrder(req, res, next) {
     try {
-      const { id } = req.user;
+      const { id } = req.params;
       const searchOrder = await Orders.findOne({
         where: { id: id },
       });
       if (!searchOrder) {
         throw new Error(400, `There is no order with ID ${id}`);
+      }
+      if (searchOrder.userID !== req.user.id) {
+        throw new Error(401, 'Unauthorized to make changes')
       }
       const payOrder = await Orders.update(
         {
@@ -76,8 +78,13 @@ class OrderController {
       const { productID, productName, toStreet, toCity } = req.body;
       const { id } = req.user;
       const searchID = await Orders.findOne({
-        where: { id: id },
+        where: { userID: id },
       });
+      
+      if (id !== searchID.userID) {
+        throw new Error(401, 'Unauthorized to make changes')
+      }
+
       const searchProduct = await Products.findOne({
         where: { id: productID },
       });
@@ -94,10 +101,10 @@ class OrderController {
           toStreet: toStreet,
           toCity: toCity,
         },
-        { where: { id: id } }
+        { where: { id: req.params.id } }
       );
       const updatedOrder = await Orders.findOne({
-        where: { id: id },
+        where: { id: req.params.id },
       });
       return new Response(res, 200, updatedOrder);
     } catch (error) {
@@ -108,7 +115,7 @@ class OrderController {
     try {
       const { id } = req.user;
       const dataOrder = await Orders.findOne({
-        where: { id: id },
+        where: { id: req.params.id },
       });
       if (!dataOrder) {
         throw new Error(400, `There is no order with ID ${id}`);
@@ -117,7 +124,7 @@ class OrderController {
         throw new Error(400, `Unauthorized to make changes`);
       }
       const deleteOrder = await Orders.destroy({
-        where: { id: id },
+        where: { id: req.params.id },
       });
       return new Response(res, 200, 'Order has been deleted');
     } catch (error) {

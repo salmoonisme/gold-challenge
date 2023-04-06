@@ -7,7 +7,7 @@ class Response {
   }
 }
 
-class ErrorResponse {
+class Error {
   constructor(status, error) {
     this.status = status;
     this.error = error;
@@ -15,4 +15,4 @@ class ErrorResponse {
   }
 }
 
-module.exports = { Response, ErrorResponse };
+module.exports = { Response, Error };

@@ -1,6 +1,5 @@
 const { Users } = require("../models");
-const Error = require("../helpers/error");
-const Response = require("../helpers/response");
+const { Response, Error } = require("../helpers/response");
 const { getToken, verifyToken } = require("../helpers/jwt");
 const bcrypt = require("bcryptjs");
 const transporter = require("../helpers/nodemailer");
@@ -110,7 +109,7 @@ class UserController {
       if (!searchID) {
         throw new Error(400, `There is no user with ID ${id}`);
       }
-      if (searchID.id !== req.user.id) {
+      if (searchID.id !== id) {
         throw new Error(401, "Unauthorized to make changes");
       }
       const updateUser = await Users.update(
@@ -158,7 +157,7 @@ class UserController {
       if (!dataUser) {
         throw new Error(400, `There is no user with ID ${id}`);
       }
-      if (dataUser.id !== req.user.id) {
+      if (dataUser.id !== id) {
         throw new Error(401, "Unauthorized to make changes");
       }
       const deleteUser = await Users.destroy({ where: { id: id } });

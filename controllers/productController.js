@@ -1,6 +1,5 @@
 const { Products } = require('../models');
-const Error = require('../helpers/error');
-const Response = require('../helpers/response');
+const { Response, Error } = require("../helpers/response");
 
 class ProductController {
   async get(req, res, next) {
@@ -60,6 +59,7 @@ class ProductController {
   }
   async deleteByID(req, res, next) {
     try {
+      const { id } = req.params
       const dataProduct = await Products.findOne({
         where: { id: id },
       });
